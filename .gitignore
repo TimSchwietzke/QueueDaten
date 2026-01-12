@@ -1,0 +1,27 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# IDE / Editor Einstellungen (will niemand sonst haben)
+.idea/
+*.iml
+.vscode/
+
+# Betriebssystem-Dateien (nervig für andere Nutzer)
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Falls du später mal npm nutzt (node_modules nie mit hochladen!)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Temporäre Dateien oder Builds (falls du welche hast)
+*.log
+dist/
