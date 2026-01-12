@@ -1,7 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+
+*{
+    font-family: 'Fredoka', 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+
+}
 body {
     width: 300px;
     padding: 20px;
-    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
     background-color: #ffe6f2;
     color: #b04279;
     text-align: center;
