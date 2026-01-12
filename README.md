@@ -47,3 +47,9 @@ Damit die Extension Bewertungen (IMDb/TMDB Scores) laden kann, benötigst du ein
 ```javascript
 // BEISPIEL für TMDB
 const TMDB_API_KEY = "dein_langer_key_von_tmdb_hier_einfuegen";
+````
+
+## 👏 Credits / Third Party Libraries
+
+* **SheetJS (xlsx):** Used for Excel export. Licensed under the Apache License 2.0.
+    * [Source Code](https://git.sheetjs.com/sheetjs/sheetjs)
