@@ -1,21 +1,20 @@
 body {
     width: 300px;
     padding: 20px;
-    /* Eine Liste von "niedlichen" Schriftarten, je nachdem was installiert ist */
     font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
-    background-color: #ffe6f2; /* Hellrosa Hintergrund */
-    color: #b04279; /* Dunkles Altrosa für den Text */
-    text-align: center; /* Alles zentriert wirkt freundlicher */
-    border: 5px solid #ffb7d5; /* Ein süßer Rahmen um das ganze Popup */
-    box-sizing: border-box; /* Damit der Rahmen die Breite nicht sprengt */
+    background-color: #ffe6f2;
+    color: #b04279;
+    text-align: center;
+    border: 5px solid #ffb7d5;
+    box-sizing: border-box;
 }
 
 h3 {
     margin-top: 0;
     margin-bottom: 10px;
     font-size: 22px;
-    color: #ff1493; /* Deep Pink für die Überschrift */
-    text-shadow: 2px 2px 0px #fff; /* Weißer Schatten für Comic-Look */
+    color: #ff1493;
+    text-shadow: 2px 2px 0px #fff;
     letter-spacing: 1px;
 }
 
@@ -31,23 +30,23 @@ button {
     padding: 12px 20px;
     background-color: #ff69b4; /* Hot Pink */
     color: white;
-    border: 3px solid #ffffff; /* Dicker weißer Rand */
-    border-radius: 25px; /* Stark abgerundet */
+    border: 3px solid #ffffff;
+    border-radius: 25px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(255, 20, 147, 0.3); /* Sanfter pinker Schatten */
-    transition: all 0.2s ease; /* Weiche Animation */
+    box-shadow: 0 4px 10px rgba(255, 20, 147, 0.3);
+    transition: all 0.2s ease;
 }
 
 button:hover {
-    background-color: #ff1493; /* Dunkleres Pink beim Drüberfahren */
-    transform: scale(1.05); /* Button wächst leicht */
+    background-color: #ff1493;
+    transform: scale(1.05);
     box-shadow: 0 6px 14px rgba(255, 20, 147, 0.5);
 }
 
 button:active {
-    transform: scale(0.95); /* Button drückt sich beim Klicken ein */
+    transform: scale(0.95);
 }
 
 /* Die Status-Box */
@@ -56,8 +55,8 @@ button:active {
     font-size: 13px;
     color: #d10069;
     font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.7); /* Halb-transparenter weißer Hintergrund */
+    background-color: rgba(255, 255, 255, 0.7);
     padding: 10px;
     border-radius: 12px;
-    border: 1px dashed #ff69b4; /* Gestrichelte Linie sieht genäht aus */
+    border: 1px dashed #ff69b4;
 }
