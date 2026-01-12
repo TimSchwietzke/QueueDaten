@@ -1,4 +1,4 @@
-(async function() {
+(async function () {
     console.log("🚀 Queue API Exporter gestartet...");
 
     // --- KONFIGURATION ---
@@ -39,7 +39,7 @@
                     const response = await fetch(url, {
                         method: 'GET',
                         credentials: 'include',
-                        headers: { 'Accept': 'application/json', 'x-requested-with': 'XMLHttpRequest' }
+                        headers: {'Accept': 'application/json', 'x-requested-with': 'XMLHttpRequest'}
                     });
 
                     if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
@@ -53,7 +53,7 @@
                     pageToken = meta.next || null;
                     if (onProgress) onProgress(this.movies.length, pageCount, meta.total);
                     if (meta.last === true || !pageToken || newMovies.length === 0) keepFetching = false;
-                    await new Promise(r => setTimeout(r, 200));
+                    await new Promise(r => setTimeout(r, 100));
                 } catch (error) {
                     console.error("❌ API Fehler:", error);
                     keepFetching = false;
@@ -72,7 +72,9 @@
                 const res = await fetch(url);
                 const data = await res.json();
                 return data.Response === "True" ? data.imdbRating || "N/A" : "N/A";
-            } catch (e) { return "N/A"; }
+            } catch (e) {
+                return "N/A";
+            }
         }
 
         static async enrichMovies(movies, onProgress) {
@@ -82,7 +84,7 @@
             for (let i = 0; i < movies.length; i++) {
                 const m = movies[i];
                 const rating = await OmdbEnricher.fetchRating(m.title?.title, m.title?.releaseYear);
-                enriched.push({ ...m, imdbRating: rating });
+                enriched.push({...m, imdbRating: rating});
                 if (onProgress) onProgress(i + 1, movies.length);
                 if ((i + 1) % 10 === 0) await new Promise(r => setTimeout(r, 500));
             }
@@ -97,6 +99,8 @@
                 const movie = item.title || {};
                 const rating = parseFloat(item.imdbRating) || 0;
 
+                let runtime = movie.duration;
+
                 // PROVIDER: Liste bereinigen, Duplikate raus, alphabetisch sortieren
                 const providers = movie.streamingProviders || [];
                 const providerList = providers
@@ -108,11 +112,6 @@
                 const genreList = (movie.genres || [])
                     .sort((a, b) => a.localeCompare(b));
 
-                const countries = providers
-                    .map(p => p.country)
-                    .filter((v, i, a) => v && a.indexOf(v) === i)
-                    .join(", ");
-
                 return {
                     title: movie.title || "Unknown",
                     type: movie.type || "UNKNOWN",
@@ -120,9 +119,11 @@
                     genre: genreList.join(", "),
                     rating: rating > 0 ? rating : "N/A",
                     streaming: providerList.length > 0 ? providerList.join(", ") : "Nicht verfügbar",
-                    country: countries || "N/A",
                     addedDate: item.timestamp ? item.timestamp.split('T')[0] : "",
                     link: `https://www.queue.co/${movie.slug || movie.id}`,
+
+                    runtime: runtime,
+                    runtimeStr: runtime > 0 ? `${runtime} min` : "-",
 
                     // Hilfsdaten
                     primaryGenre: genreList[0] || "Unknown",
@@ -135,12 +136,19 @@
 
         static sortData(data, sortBy = 'rating') {
             const sorted = [...data];
-            switch(sortBy) {
-                case 'rating': return sorted.sort((a, b) => b.ratingNum - a.ratingNum);
-                case 'year': return sorted.sort((a, b) => (b.year || 0) - (a.year || 0));
-                case 'title': return sorted.sort((a, b) => a.title.localeCompare(b.title));
-                case 'date': return sorted.sort((a, b) => b.addedDate.localeCompare(a.addedDate));
-                default: return sorted;
+            switch (sortBy) {
+                case 'rating':
+                    return sorted.sort((a, b) => b.ratingNum - a.ratingNum);
+                case 'year':
+                    return sorted.sort((a, b) => (b.year || 0) - (a.year || 0));
+                case 'title':
+                    return sorted.sort((a, b) => a.title.localeCompare(b.title));
+                case 'date':
+                    return sorted.sort((a, b) => b.addedDate.localeCompare(a.addedDate));
+                case 'runtime':
+                    return sorted.sort((a, b) => b.runtime - a.runtime); // NEU: Sortieren nach Länge
+                default:
+                    return sorted;
             }
         }
 
@@ -165,10 +173,22 @@
 
         static calculateStats(data) {
             const genreCounts = {};
+            let totalRuntimeMin = 0;
+
             data.forEach(item => {
                 const genre = item.primaryGenre;
                 genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+
+                if (item.type === "MOVIE") {
+                    totalRuntimeMin += item.runtime;
+                }
             });
+
+            const days = Math.floor(totalRuntimeMin / (24 * 60));
+            const hours = Math.floor((totalRuntimeMin % (24 * 60)) / 60);
+            const minutes = totalRuntimeMin % 60;
+
+            const formattedDuration = `${days}d ${hours}h ${minutes}m`;
 
             const streamingCounts = {};
             data.forEach(item => {
@@ -182,11 +202,17 @@
                 total: data.length,
                 movies: data.filter(d => d.type === 'MOVIE').length,
                 shows: data.filter(d => d.type === 'SHOW').length,
+
                 avgRating: rated.length > 0 ? (rated.reduce((sum, d) => sum + d.ratingNum, 0) / rated.length).toFixed(2) : "N/A",
                 topGenre: Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0] || ["N/A", 0],
+
+                totalRuntimeMin: totalRuntimeMin,
+                totalRunTimeFormatted: formattedDuration,
+
                 topStreaming: Object.entries(streamingCounts).sort((a, b) => b[1] - a[1])[0] || ["N/A", 0],
                 available: data.filter(d => d.hasStreaming).length,
                 notAvailable: data.filter(d => !d.hasStreaming).length,
+
                 genreCounts,
                 streamingCounts
             };
@@ -216,41 +242,49 @@
         static createStatsSheet(wb, stats) {
             const data = [
                 ["📊 QUEUE STATISTIKEN", ""], ["", ""],
-                ["Gesamt", stats.total], ["🎬 Filme", stats.movies], ["📺 Serien", stats.shows],
-                ["", ""], ["Verfügbar", stats.available], ["Nicht verfügbar", stats.notAvailable],
-                ["", ""], ["--- GENRES ---", "Anzahl"]
+                ["Gesamt", stats.total],
+                ["🎬 Filme", stats.movies],
+                ["📺 Serien", stats.shows],
+                ["", ""],
+                ["⏳ Gesamtlaufzeit (Nur Filme)", stats.totalRunTimeFormatted],
+                ["⏱️ Laufzeit in Minuten (Nur Filme)", stats.totalRuntimeMin],
+                ["Verfügbar", stats.available],
+                ["Nicht verfügbar", stats.notAvailable],
+                ["", ""],
+                ["--- GENRES ---", "Anzahl"]
             ];
             Object.entries(stats.genreCounts).sort((a, b) => b[1] - a[1]).forEach(e => data.push(e));
-            data.push(["", ""]); data.push(["--- STREAMING ---", "Anzahl"]);
+            data.push(["", ""]);
+            data.push(["--- STREAMING ---", "Anzahl"]);
             Object.entries(stats.streamingCounts).sort((a, b) => b[1] - a[1]).forEach(e => data.push(e));
 
             const ws = XLSX.utils.aoa_to_sheet(data);
-            ws['!cols'] = [{ wch: 30 }, { wch: 15 }];
+            ws['!cols'] = [{wch: 30}, {wch: 15}];
             XLSX.utils.book_append_sheet(wb, ws, "Statistiken");
         }
 
         static createDataSheet(wb, sheetName, data) {
-            const headers = ["Titel", "Typ", "Jahr", "Genre", "Rating", "Streaming", "Land", "Hinzugefügt", "Link"];
+            const headers = ["Titel", "Typ", "Jahr", "Länge", "Genre", "Rating", "Streaming", "Hinzugefügt", "Link"];
 
             const rows = data.map(d => [
-                d.title, d.type, d.year, d.genre, d.rating, d.streaming, d.country, d.addedDate, d.link
+                d.title, d.type, d.year, d.runtime, d.genre, d.rating, d.streaming, d.addedDate, d.link
             ]);
 
             const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
 
             ws['!cols'] = [
-                { wch: 40 }, // Titel
-                { wch: 10 }, // Typ
-                { wch: 6 },  // Jahr
-                { wch: 30 }, // Genre
-                { wch: 6 },  // Rating
-                { wch: 40 }, // Streaming
-                { wch: 10 }, // Land
-                { wch: 12 }, // Datum
-                { wch: 50 }  // Link
+                {wch: 40}, // Titel
+                {wch: 10}, // Typ
+                {wch: 6},  // Jahr
+                {wch: 15}, // Länge
+                {wch: 30}, // Genre
+                {wch: 6},  // Rating
+                {wch: 40}, // Streaming
+                {wch: 12}, // Datum
+                {wch: 50}  // Link
             ];
 
-            if (ws['!ref']) ws['!autofilter'] = { ref: ws['!ref'] };
+            if (ws['!ref']) ws['!autofilter'] = {ref: ws['!ref']};
 
             XLSX.utils.book_append_sheet(wb, ws, sheetName);
         }
