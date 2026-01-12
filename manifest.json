@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Queue Movie Exporter",
   "version": "1.0",
-  "description": "Extrahiert Filme aus Queue, scrollt automatisch und exportiert als CSV.",
+  "description": "Extrahiert Filme und Serien aus Queue, kategorisiert diese und speichert sie formatiert in einer xlsx Datei.",
   "permissions": ["activeTab", "scripting"],
   "icons": {
     "16": "icons/icon16.png",
