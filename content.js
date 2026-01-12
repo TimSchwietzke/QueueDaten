@@ -264,7 +264,7 @@
 
         const api = new QueueApi(username);
 
-        const movies = await api.fetchAllMovies((c, p, t) => document.title = `Lade... ${c}/${t || '?'}`);
+        const movies = await api.fetchAllMovies((c, p, t) => document.title = `${c}/${t || '?'}`);
         if (!movies.length) {
             document.title = originalTitle;
             throw new Error("Keine Filme gefunden.");
