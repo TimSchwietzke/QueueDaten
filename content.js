@@ -12,7 +12,7 @@
             if (pathParts.length >= 2 && pathParts[0] === 'users') {
                 return pathParts[1];
             }
-            throw new Error("Keine gültige Queue-URL! Bitte öffne: queue.co/users/DEINNAME");
+            return null;
         }
     }
 
@@ -299,6 +299,20 @@
     // --- 6. START ---
     try {
         const username = UserDetector.getUsername();
+
+        if (!username) {
+            console.warn("Falsche Seite, breche ab.");
+
+            showHelloKittyPopup(
+                "Leider nicht die richtige Seite :/",
+                "Das sieht nicht wie ein Queue-Profil aus.\n\n" +
+                "Bitte gehe zuerst auf deine Seite:\n" +
+                "👉 queue.co/users/DEINNAME"
+            );
+
+            return;
+        }
+
         const originalTitle = document.title;
         const startTime = Date.now();
 
@@ -325,7 +339,7 @@
         const showCount = enriched.filter(m => m.title?.type === 'SHOW').length;
 
         showHelloKittyPopup(
-            "Fertig, Delal! ✨",
+            `Fertig, ${username}! ✨`,
             `📦 Gesamt: ${totalCount} Titel\n` +
             `🎬 Filme: ${movieCount}\n` +
             `📺 Serien: ${showCount}\n` +
@@ -338,3 +352,41 @@
         showHelloKittyPopup("Oh nein! 😿", "Ein Fehler ist aufgetreten:\n" + e.message);
         document.title = "Fehler!";    }
 })();
+
+function removeHelloKittyPopup() {
+    const old = document.getElementById('hk-popup-overlay');
+    if (old) old.remove();
+}
+
+function showHelloKittyPopup(title, text) {
+    // 1. Altes Popup entfernen (falls vorhanden)
+    removeHelloKittyPopup();
+
+    // 2. HTML Elemente bauen
+    const overlay = document.createElement('div');
+    overlay.id = 'hk-popup-overlay';
+
+    const box = document.createElement('div');
+    box.id = 'hk-popup-box';
+
+    box.innerHTML = `
+        <h2>${title}</h2>
+        <pre>${text}</pre>
+        <button id="hk-popup-close">Dankeschön! 💖</button>
+    `;
+
+    // 3. Zusammenbauen & Anzeigen
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    // 4. Klick-Event zum Schließen
+    document.getElementById('hk-popup-close').addEventListener('click', () => {
+        overlay.remove();
+    });
+
+    try {
+        chrome.runtime.sendMessage({ action: "JOB_DONE" });
+    } catch (e) {
+        // Fehler ignorieren (passiert, wenn man das Popup schon geschlossen hat)
+    }
+}
