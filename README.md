@@ -1,6 +1,6 @@
 # 🎬 Queue Exporter (Chrome Extension) - Für Delal :)
 
-![Logo](icons/icon.png)
+![Logo](src/icons/icon.png)
 
 **Queue Exporter** ist eine Chrome-Erweiterung für [queue.co](https://queue.co).
 Sie ermöglicht es dir, deine gesamte Watchlist (Filme & Serien) 
