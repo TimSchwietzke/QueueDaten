@@ -5,7 +5,7 @@
 
 }
 body {
-    width: 300px;
+    width: 320px;
     padding: 20px;
     background-color: #ffe6f2;
     color: #b04279;
@@ -13,6 +13,8 @@ body {
     border: 5px solid #ffb7d5;
     border-radius: 15px;
     box-sizing: border-box;
+
+    cursor: url('src/cursor/HelloKittyNormalSelect.cur') 0 0, auto;
 }
 
 h3 {
@@ -55,6 +57,23 @@ button:active {
     transform: scale(0.95);
 }
 
+button:disabled {
+    background-color: #ffb7d5;
+    color: #ffe6f2;
+    border: 3px dashed #ffffff;
+
+    cursor: none;
+    opacity: 0.8;
+
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+#btnContainer {
+    display: flex;
+    gap: 10px;
+}
+
 /* Die Status-Box */
 #status {
     margin-top: 15px;
@@ -65,4 +84,26 @@ button:active {
     padding: 10px;
     border-radius: 12px;
     border: 1px dashed #ff69b4;
+}
+
+#custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+
+    background-image: url('src/cursor/HelloKittyLinkSelect.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+}
+
+button:hover,
+#success-image:hover,
+#fail-image:hover {
+    cursor: none; /* System-Cursor ausschalten, damit wir nur unser GIF sehen */
 }

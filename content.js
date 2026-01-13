@@ -28,11 +28,15 @@
             let pageToken = null;
             let pageCount = 0;
             let keepFetching = true;
-            console.log(`⚡ Starte API-Abruf für: ${this.username}`);
+
+            const mode = window.QUEUE_EXPORT_MODE || 'Queued';
+
+            console.log(`⚡ Starte API-Abruf für: ${this.username}, im Modus: ${mode}`);
 
             while (keepFetching) {
                 pageCount++;
-                let url = `${this.baseUrl}?user_handle=${this.username}&title_action=QUEUED`;
+                let url = `${this.baseUrl}?user_handle=${this.username}`;
+                if (mode === 'Queued') url += `&title_action=QUEUED`
                 if (pageToken) url += `&page_token=${pageToken}`;
 
                 try {
@@ -236,7 +240,9 @@
             ExcelExporter.createDataSheet(wb, "Top Rated", DataProcessor.sortData(categories.topRated, 'rating'));
 
             const today = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `queue_${username}_${today}.xlsx`);
+            const mode = window.QUEUE_EXPORT_MODE || 'Queued';
+
+            XLSX.writeFile(wb, `queue_${username}_${mode}_${today}.xlsx`);
         }
 
         static createStatsSheet(wb, stats) {
@@ -318,17 +324,17 @@
         const movieCount = enriched.filter(m => m.title?.type === 'MOVIE').length;
         const showCount = enriched.filter(m => m.title?.type === 'SHOW').length;
 
-        alert(
-            `✅ Fertig! Excel erstellt.\n\n` +
+        showHelloKittyPopup(
+            "Fertig, Delal! ✨",
             `📦 Gesamt: ${totalCount} Titel\n` +
             `🎬 Filme: ${movieCount}\n` +
             `📺 Serien: ${showCount}\n` +
-            `⏱️ Dauer: ${duration}s\n\n`
+            `⏱️ Dauer: ${duration}s\n` +
+            `\nDie Excel-Datei wurde heruntergeladen!`
         );
 
     } catch (e) {
         console.error(e);
-        alert("Fehler: " + e.message);
-        document.title = "Fehler";
-    }
+        showHelloKittyPopup("Oh nein! 😿", "Ein Fehler ist aufgetreten:\n" + e.message);
+        document.title = "Fehler!";    }
 })();
